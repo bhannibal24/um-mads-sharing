@@ -1,2 +1,2 @@
 # um-mads-sharing
-Repo for UM MAds Projects
+Repo for UM MADS Projects
