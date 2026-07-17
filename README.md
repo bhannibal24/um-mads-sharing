@@ -31,7 +31,7 @@ Run the application:
 Bash
 streamlit run app.py
 Project Deliverables
-Live Dashboard: [Insert Link to your Streamlit App URL Here]
+Live Dashboard: https://nba-shot-charts.streamlit.app/
 
 Jupyter Notebook: View the Analysis Notebook
 
