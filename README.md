@@ -51,11 +51,3 @@ pandas
 
 plotly
 
-A few quick tips before you save:
-Replace the placeholder: Make sure to replace [Insert Link to your Streamlit App URL Here] with the actual URL you received from the Streamlit Cloud deployment.
-
-Save: Save this as README.md in your main folder.
-
-Commit: Since you already fixed the large file issue, you can simply do a git add README.md, git commit -m "Add README", and git push to make it live!
-
-Do you have your Streamlit URL ready, or do you need help getting that final link?
