@@ -233,7 +233,7 @@ elif has_team_filter:
 else:
     group_col = None 
     color_val = None
-    bar_mode = 'relative'
+    bar_mode = 'stacked'
 
 
 
@@ -359,7 +359,7 @@ with row1_col2:
             type_by_season,
             x='Season',
             y='Shot Count',
-            color=color_val,
+            color='player.shot_type',
             title="Yearly Shot Selection Breakdown",
             barmode=bar_mode, 
             color_discrete_sequence=px.colors.qualitative.Set2,
@@ -394,8 +394,12 @@ with row2_col1:
             labels=['0-5 ft', '6-10 ft', '11-15 ft', '16-20 ft', '21-25 ft', '26+ ft']
         )
 
+        group_list = ['distance_bin']
+        if group_col is not None:
+            group_list.append(group_col)
+
         dist_grouped = (
-            filtered_df.groupby(['distance_bin', group_col], observed=False)
+            filtered_df.groupby([group_list], observed=False)
             .size()
             .reset_index(name='Attempts')
         )
