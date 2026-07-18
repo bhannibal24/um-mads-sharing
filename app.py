@@ -218,7 +218,20 @@ row2_col1, row2_col2 = st.columns(2)
 
 # # Shot Locations
 # 
-# We'll use the plotly scatter functionality to build out our shots on court. We can map shot locations using the x_scaled and y_scaled to represent the x and y coordinates on the court, we create a precise representation of each shot attempt. We used a custom aligned half court background image layered behind the scatter data to ensure the alignment between the plotted coordinates and the actual court geometry. then we toggle the coloring to determine by player or by team
+# We used Plotly's px.scatter functionality to map individual shot attempts, utilizing x_scaled and y_scaled coordinates to plot each shot with high precision. To provide spatial context, we overlay this data on a custom half-court background image using fig_map.add_layout_image.
+# 
+# Technical Challenge: Coordinate Geometry & Alignment
+# During development, we encountered a significant challenge: aligning the scatter data with the background image geometry. By default, Plotly handles image coordinate mapping based on a standard Cartesian plane. Initially, our shot data points and the court image were misaligned—the background image appeared inverted or scaled incorrectly relative to our x and y axes.
+# 
+# To resolve this, we explored two potential approaches:
+# 
+# Coordinate Transformation: Adjusting the sizex, sizey, x, and y parameters within the add_layout_image dictionary to flip the image orientation programmatically. While powerful, this requires precise calibration of the x and y anchor points to prevent the image from being pushed out of the plot frame.
+# 
+# Pre-processing (The Solution): To ensure consistent alignment and simplify our code, we performed a 180-degree rotation on the source image file itself. This allowed us to map the image using a standard, positive-value Cartesian coordinate system (x=-250, y=-50), ensuring the court geometry maps seamlessly to our shot data without needing complex scaling hacks.
+# 
+# Finally, we implemented interactivity by toggling the color parameter, allowing users to dynamically switch between viewing shot data by individual player or by team, enabling a quick comparison of both shot volume and efficiency across different cohorts.
+# 
+# 
 
 # In[11]:
 
@@ -332,7 +345,7 @@ with row1_col2:
             legend_title="Shot Type"
         )
 
-        st.plotly_chart(fig_bar, use_container_width=True)
+        st.plotly_chart(fig_bar, width='stretch')
     else:
         st.info("No shot data available.")
 
@@ -362,7 +375,7 @@ with row2_col1:
             title="Attempts Volume by Distance Range"
         )
         fig_dist.update_layout(height=400)
-        st.plotly_chart(fig_dist, use_container_width=True)
+        st.plotly_chart(fig_dist, width='stretch')
     else:
         st.info("No shot data available.")
 
@@ -389,10 +402,21 @@ with row2_col2:
         )
         fig_trend.update_yaxes(range=[0, 100])
         fig_trend.update_layout(height=400, xaxis=dict(tickmode='linear'))
-        st.plotly_chart(fig_trend, use_container_width=True)
+        st.plotly_chart(fig_trend, width='stretch')
     else:
         st.info("No progression data available.")
 
+
+# ## Deployment Instructions
+# Once your code is ready and pushed to GitHub, you can deploy it instantly using Streamlit Community Cloud:
+# 
+# Sign in: Head to share.streamlit.io and connect your GitHub account.
+# 
+# Deploy: Click "New app" and select your repository, the main branch, and your script file (e.g., app.py).
+# 
+# Launch: Streamlit will automatically detect your requirements.txt file, install the necessary dependencies, and provide a live URL for your dashboard.
+# 
+# my dashboard is at https://nba-shot-charts.streamlit.app/
 
 # In[ ]:
 
