@@ -324,13 +324,13 @@ with row1_col1:
 
 
 num_players = filtered_df['player.player_name'].nunique()
-num_teams = filtered_df['team_name'].nunique()
+num_teams = filtered_df['player.team_name'].nunique()
 
 if num_players > 1:
     group_col = 'player.player_name'
     bar_mode = 'group'
 elif num_teams > 1:
-    group_col = 'team_name'
+    group_col = 'player.team_name'
     bar_mode = 'group'
 else:
     group_col = 'player.shot_type' 
