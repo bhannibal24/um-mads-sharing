@@ -3,6 +3,10 @@
 
 # # Assignment 3
 
+# name: Ben Hannibal
+# email: bhann@umich.edu
+# github repo link: https://github.com/bhannibal24/um-mads-sharing/tree/main
+
 # # Basketball Shot Data Exploration
 # 
 # After playing basketball from childhood through college, my career in sports and my interest in deeping my professional connection to basketball I figured it would be good to explore some shot data from the 2015-2020 NBA seasons. We'll be visualizing trends of shot type distributions, efficiency by distance, shot locations and yearly shifts in efficiency by team and player. The purpose of this exploration is to identify emerging trends and interact with the data through filters. We'll use scatter plots to track shot locations, stacked bar to view type distributions, histograms to view efficiency by distance
@@ -316,14 +320,26 @@ with row1_col1:
 # 
 # Here we use a stacked bar to get a visual distribution of the % of 2s and 3s taken over the selected seasons. We use this to determine efficiency of the shots. 
 
-# In[ ]:
+# In[1]:
 
 
+num_players = filtered_df['player.player_name'].nunique()
+num_teams = filtered_df['team_name'].nunique()
+
+if num_players > 1:
+    group_col = 'player.player_name'
+    bar_mode = 'group'
+elif num_teams > 1:
+    group_col = 'team_name'
+    bar_mode = 'group'
+else:
+    group_col = 'player.shot_type' 
+    bar_mode = 'relative'
 with row1_col2:
     st.markdown("#### 2-Pointers vs 3-Pointers")
     if not filtered_df.empty:
         type_by_season = (
-            filtered_df.groupby(['Season', 'player.shot_type'], observed=False)
+            filtered_df.groupby(['Season',group_col, 'player.shot_type'], observed=False)
             .size()
             .reset_index(name='Shot Count')
         )
@@ -332,9 +348,9 @@ with row1_col2:
             type_by_season,
             x='Season',
             y='Shot Count',
-            color='player.shot_type',
+            color=group_col,
             title="Yearly Shot Selection Breakdown",
-            barmode='stack', 
+            barmode=barmode, 
             color_discrete_sequence=px.colors.qualitative.Set2,
             labels={'player.shot_type': 'Shot Type', 'Shot Count': 'Number of Attempts'}
         )
@@ -360,22 +376,30 @@ with row1_col2:
 with row2_col1:
     st.markdown("#### Shot Frequency by Distance")
     if not filtered_df.empty:
+
         filtered_df['distance_bin'] = pd.cut(
             filtered_df['player.shot_distance'], 
             bins=[-1, 5, 10, 15, 20, 25, 40], 
             labels=['0-5 ft', '6-10 ft', '11-15 ft', '16-20 ft', '21-25 ft', '26+ ft']
         )
-        dist_grouped = filtered_df.groupby('distance_bin', observed=False).size().reset_index(name='Attempts')
+
+        dist_grouped = (
+            filtered_df.groupby(['distance_bin', group_col], observed=False)
+            .size()
+            .reset_index(name='Attempts')
+        )
 
         fig_dist = px.bar(
-            dist_grouped,
-            x='distance_bin',
-            y='Attempts',
-            labels={'distance_bin': 'Shot Distance (Feet)'},
+            dist_grouped, 
+            x='distance_bin', 
+            y='Attempts', 
+            color=group_col, 
+            barmode=bar_mode,
+            labels={'distance_bin': 'Shot Distance (Feet)', group_col: 'Group'},
             title="Attempts Volume by Distance Range"
         )
         fig_dist.update_layout(height=400)
-        st.plotly_chart(fig_dist, width='stretch')
+        st.plotly_chart(fig_dist, use_container_width=True)
     else:
         st.info("No shot data available.")
 
@@ -390,19 +414,25 @@ with row2_col1:
 with row2_col2:
     st.markdown("#### Efficiency Trend Across Seasons (2015-2020)")
     if not filtered_df.empty:
-        trend_df = filtered_df.groupby('Season')['player.shot_made_numeric'].mean().reset_index()
+        # Group by both Season and the selected entity
+        trend_df = (
+            filtered_df.groupby(['Season', group_col], observed=False)['player.shot_made_numeric']
+            .mean()
+            .reset_index()
+        )
         trend_df['Field Goal %'] = trend_df['player.shot_made_numeric'] * 100
 
         fig_trend = px.line(
-            trend_df,
-            x='Season',
-            y='Field Goal %',
-            markers=True,
+            trend_df, 
+            x='Season', 
+            y='Field Goal %', 
+            color=group_col,  # Multiple lines for comparison
+            markers=True, 
             title="Yearly Shooting Accuracy Trend"
         )
         fig_trend.update_yaxes(range=[0, 100])
         fig_trend.update_layout(height=400, xaxis=dict(tickmode='linear'))
-        st.plotly_chart(fig_trend, width='stretch')
+        st.plotly_chart(fig_trend, use_container_width=True)
     else:
         st.info("No progression data available.")
 
