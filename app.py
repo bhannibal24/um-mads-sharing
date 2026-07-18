@@ -259,7 +259,7 @@ else:
 # 
 # 
 
-# In[11]:
+# In[2]:
 
 
 current_dir = Path.cwd()
@@ -279,7 +279,7 @@ with row1_col1:
             x='x_scaled',
             y='y_scaled',
             symbol = 'player.shot_made_flag',
-            symbol_map = {1: 'circle-open', 0: 'x'},
+            symbol_map = {1: 'circle', 0: 'x'},
             color=color_val, 
             hover_data=['player.action_type', 'player.shot_distance', 'player.shot_made_flag'],
             opacity=0.8,
@@ -359,7 +359,7 @@ with row1_col2:
             type_by_season,
             x='Season',
             y='Shot Count',
-            color=color,
+            color=color_val,
             title="Yearly Shot Selection Breakdown",
             barmode=bar_mode, 
             color_discrete_sequence=px.colors.qualitative.Set2,
