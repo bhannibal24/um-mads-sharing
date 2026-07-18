@@ -219,20 +219,23 @@ row2_col1, row2_col2 = st.columns(2)
 # In[ ]:
 
 
-num_players = filtered_df['player.player_name'].nunique()
-num_teams = filtered_df['player.team_name'].nunique()
+has_player_filter = len(selected_players) > 0
+has_team_filter = len(selected_team) > 0
 
-if num_players > 1:
+if has_player_filter:
     group_col = 'player.player_name'
-    bar_mode = 'group'
-elif num_teams > 1:
-    group_col = 'player.team_name'
-    bar_mode = 'group'
+    color_val = 'player.player_name'
+    bar_mode = 'group' if len(selected_players) > 1 else 'relative'
+elif has_team_filter:
+    group_col = 'team_name'
+    color_val = 'team_name'
+    bar_mode = 'group' if len(selected_team) > 1 else 'relative'
 else:
-    group_col = 'player.shot_type' 
+    group_col = None 
+    color_val = None
     bar_mode = 'relative'
-has_selection = num_players > 0 or num_teams > 0
-color_val = group_col if has_selection else None
+
+
 
 
 # Above we set up our dashboard grid. By default, streamlit piles everything into one long column. st.columns() lets you break that into multiple columns. 
@@ -342,8 +345,12 @@ with row1_col1:
 with row1_col2:
     st.markdown("#### 2-Pointers vs 3-Pointers")
     if not filtered_df.empty:
+        group_list = ['Season', 'player.shot_type']
+        if group_col:
+            group_list.append(group_col)
+
         type_by_season = (
-            filtered_df.groupby(['Season',group_col, 'player.shot_type'], observed=False)
+            filtered_df.groupby(group_list, observed=False)
             .size()
             .reset_index(name='Shot Count')
         )
@@ -352,7 +359,7 @@ with row1_col2:
             type_by_season,
             x='Season',
             y='Shot Count',
-            color=color_val,
+            color=color,
             title="Yearly Shot Selection Breakdown",
             barmode=bar_mode, 
             color_discrete_sequence=px.colors.qualitative.Set2,
