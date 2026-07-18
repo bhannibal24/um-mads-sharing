@@ -216,6 +216,25 @@ row1_col1, row1_col2 = st.columns(2)
 row2_col1, row2_col2 = st.columns(2)
 
 
+# In[ ]:
+
+
+num_players = filtered_df['player.player_name'].nunique()
+num_teams = filtered_df['player.team_name'].nunique()
+
+if num_players > 1:
+    group_col = 'player.player_name'
+    bar_mode = 'group'
+elif num_teams > 1:
+    group_col = 'player.team_name'
+    bar_mode = 'group'
+else:
+    group_col = 'player.shot_type' 
+    bar_mode = 'relative'
+has_selection = num_players > 0 or num_teams > 0
+color_val = group_col if has_selection else None
+
+
 # Above we set up our dashboard grid. By default, streamlit piles everything into one long column. st.columns() lets you break that into multiple columns. 
 # 
 # by using st.columns(2) we tell streamlit to split the horizontal width of the page into two equal side by side columns. to put stuff in the columns we can use the with statement
@@ -251,9 +270,6 @@ datapath = project_root / 'data' / "court image.png"
 with row1_col1:
     st.markdown("#### Shot Charts")
     if not filtered_df.empty:
-        color_column = 'player.team_name' if len(selected_team) > 1 else 'player.player_name'
-        if len(selected_team) > 1:
-            filtered_df = filtered_df[filtered_df['player.team_name'].isin(selected_team)]
 
         fig_map = px.scatter(
             filtered_df,
@@ -261,7 +277,7 @@ with row1_col1:
             y='y_scaled',
             symbol = 'player.shot_made_flag',
             symbol_map = {1: 'circle-open', 0: 'x'},
-            color=color_column, 
+            color=color_val, 
             hover_data=['player.action_type', 'player.shot_distance', 'player.shot_made_flag'],
             opacity=0.8,
             title="Shot Coordinates"
@@ -323,18 +339,6 @@ with row1_col1:
 # In[1]:
 
 
-num_players = filtered_df['player.player_name'].nunique()
-num_teams = filtered_df['player.team_name'].nunique()
-
-if num_players > 1:
-    group_col = 'player.player_name'
-    bar_mode = 'group'
-elif num_teams > 1:
-    group_col = 'player.team_name'
-    bar_mode = 'group'
-else:
-    group_col = 'player.shot_type' 
-    bar_mode = 'relative'
 with row1_col2:
     st.markdown("#### 2-Pointers vs 3-Pointers")
     if not filtered_df.empty:
@@ -348,7 +352,7 @@ with row1_col2:
             type_by_season,
             x='Season',
             y='Shot Count',
-            color=group_col,
+            color=color_val,
             title="Yearly Shot Selection Breakdown",
             barmode=bar_mode, 
             color_discrete_sequence=px.colors.qualitative.Set2,
@@ -393,7 +397,7 @@ with row2_col1:
             dist_grouped, 
             x='distance_bin', 
             y='Attempts', 
-            color=group_col, 
+            color=color_val, 
             barmode=bar_mode,
             labels={'distance_bin': 'Shot Distance (Feet)', group_col: 'Group'},
             title="Attempts Volume by Distance Range"
@@ -425,7 +429,7 @@ with row2_col2:
             trend_df, 
             x='Season', 
             y='Field Goal %', 
-            color=group_col, 
+            color=color_val, 
             markers=True, 
             title="Yearly Shooting Accuracy Trend"
         )
