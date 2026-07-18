@@ -350,7 +350,7 @@ with row1_col2:
             y='Shot Count',
             color=group_col,
             title="Yearly Shot Selection Breakdown",
-            barmode=barmode, 
+            barmode=bar_mode, 
             color_discrete_sequence=px.colors.qualitative.Set2,
             labels={'player.shot_type': 'Shot Type', 'Shot Count': 'Number of Attempts'}
         )
@@ -414,7 +414,6 @@ with row2_col1:
 with row2_col2:
     st.markdown("#### Efficiency Trend Across Seasons (2015-2020)")
     if not filtered_df.empty:
-        # Group by both Season and the selected entity
         trend_df = (
             filtered_df.groupby(['Season', group_col], observed=False)['player.shot_made_numeric']
             .mean()
@@ -426,7 +425,7 @@ with row2_col2:
             trend_df, 
             x='Season', 
             y='Field Goal %', 
-            color=group_col,  # Multiple lines for comparison
+            color=group_col, 
             markers=True, 
             title="Yearly Shooting Accuracy Trend"
         )
