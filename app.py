@@ -182,8 +182,8 @@ filtered_df['plot_y'] = 500 - (filtered_df['y_scaled'] + 50)
 if selected_players:
     filtered_df = filtered_df[filtered_df['player.player_name'].isin(selected_players)]
 
-if 'selected_teams' in locals() and selected_teams:
-    filtered_df = filtered_df[filtered_df['player.team_name'].isin(selected_teams)]
+if 'selected_team' in locals() and selected_team:
+    filtered_df = filtered_df[filtered_df['player.team_name'].isin(selected_team)]
 if selected_actions:
     filtered_df = filtered_df[filtered_df['player.action_type'].isin(selected_actions)]
 
@@ -227,13 +227,13 @@ if has_player_filter:
     color_val = 'player.player_name'
     bar_mode = 'group' if len(selected_players) > 1 else 'relative'
 elif has_team_filter:
-    group_col = 'team_name'
-    color_val = 'team_name'
+    group_col = 'player.team_name'
+    color_val = 'player.team_name'
     bar_mode = 'group' if len(selected_team) > 1 else 'relative'
 else:
     group_col = None 
     color_val = None
-    bar_mode = 'stacked'
+    bar_mode = 'relative'
 
 
 
@@ -280,7 +280,7 @@ with row1_col1:
             y='y_scaled',
             symbol = 'player.shot_made_flag',
             symbol_map = {1: 'circle', 0: 'x'},
-            color=color_val, 
+            color=group_col, 
             hover_data=['player.action_type', 'player.shot_distance', 'player.shot_made_flag'],
             opacity=0.8,
             title="Shot Coordinates"
@@ -399,7 +399,7 @@ with row2_col1:
             group_list.append(group_col)
 
         dist_grouped = (
-            filtered_df.groupby([group_list], observed=False)
+            filtered_df.groupby(group_list, observed=False)
             .size()
             .reset_index(name='Attempts')
         )
@@ -429,11 +429,16 @@ with row2_col1:
 with row2_col2:
     st.markdown("#### Efficiency Trend Across Seasons (2015-2020)")
     if not filtered_df.empty:
+        group_list = ['Season']
+        if group_col is not None:
+            group_list.append(group_col)
+
         trend_df = (
-            filtered_df.groupby(['Season', group_col], observed=False)['player.shot_made_numeric']
+            filtered_df.groupby(group_list, observed=False)['player.shot_made_numeric']
             .mean()
             .reset_index()
         )
+
         trend_df['Field Goal %'] = trend_df['player.shot_made_numeric'] * 100
 
         fig_trend = px.line(
